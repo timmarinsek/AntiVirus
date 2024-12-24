@@ -1,0 +1,5 @@
+This file contains virus_signature for testing purposes.
+
+a
+a
+a
