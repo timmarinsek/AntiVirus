@@ -19,28 +19,35 @@ def load_yara_rules(rules_directory):
     return rules
 
 # Funkcija za skeniranje datoteke
+# Posodobljena funkcija za skeniranje datoteke (branje v manjših blokih)
 def scan_file(file_path, rules):
     try:
-        time.sleep(1)  
+        time.sleep(1)  # Dodaj zamik, če je potreben
         with open(file_path, "rb") as f:
-            data = f.read()
-            for rule_name, rule in rules.items():
-                matches = rule.match(data=data)
-                if matches:
-                    log_message(f"Zaznana grožnja v {file_path}: {matches}", "virus")
-                    return True
+            while chunk := f.read(4096):  # Preberi datoteko v blokih po 4KB
+                for rule_name, rule in rules.items():
+                    matches = rule.match(data=chunk)
+                    if matches:
+                        log_message(f"Zaznana grožnja v {file_path}: {matches}", "virus")
+                        return True
     except Exception as e:
         log_message(f"Napaka pri skeniranju {file_path}: {e}", "error")
     log_message(f"Datoteka {file_path} ni zlonamerna.", "safe")
     return False
 
 # Pasivno skeniranje (na zahtevo uporabnika)
+# Funkcija za pasivno skeniranje z obravnavo napak
 def passive_scan(directory, rules):
     log_message(f"Začelo se je skeniranje imenika: {directory}", "info")
-    for root, _, files in os.walk(directory):
+    for root, dirs, files in os.walk(directory):
         for file in files:
             file_path = os.path.join(root, file)
-            scan_file(file_path, rules)
+            try:
+                scan_file(file_path, rules)
+            except PermissionError:
+                log_message(f"Napaka pri dostopu do {file_path}: Brez dovoljenj.", "error")
+            except Exception as e:
+                log_message(f"Napaka pri obdelavi {file_path}: {e}", "error")
     log_message("Skeniranje končano.", "info")
 
 # Aktivno spremljanje imenikov (Watchdog)

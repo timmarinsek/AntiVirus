@@ -1,0 +1,5 @@
+cmd.exe /c
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
+powershell.exe -ExecutionPolicy Bypass
+This is a test file to simulate trojan-like behavior.
+End of test data.

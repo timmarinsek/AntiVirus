@@ -84,3 +84,10 @@ rule Detect_Encrypted_Communication
     condition:
         1 of ($rsa_key, $aes_key) and $crypto_lib
 }
+
+rule Detect_Malicious_URL {
+    strings:
+        $url = "http://malicious-url.com"
+    condition:
+        $url
+}
